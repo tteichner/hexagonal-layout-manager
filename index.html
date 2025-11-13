@@ -3,22 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>HexGrid</title>
-    <style>
-        .test {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .canvas {
-            border: 1px solid #000000;
-        }
-    </style>
     <script type="text/javascript" src="src/draw.js"></script>
     <script type="text/javascript">
+        let grid;
         window.addEventListener('DOMContentLoaded',function () {
-            const node = document.getElementById('canvas');
-            node.setAttribute('height', '1000');
-            node.setAttribute('width', '1600');
+            grid = document.getElementById('canvas');
+            grid.setAttribute('height', '3000');
+
+            grid.addEventListener("after-draw", function(e) {
+                console.log(e.detail);
+                grid.drawHQ(4, 4);
+            });
+            grid.setAttribute('width', '5000');
         });
     </script>
 </head>

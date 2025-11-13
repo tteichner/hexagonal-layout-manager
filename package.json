@@ -4,7 +4,7 @@
   "description": "Use it to define a playground with hexagonal items",
   "main": "draw.js",
   "scripts": {
-    "test": "npx http-server -c-1 -o ."
+    "serve": "npx http-server -c-1 -o ."
   },
   "repository": {
     "type": "git",
