@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HexGrid</title>
+    <style>
+        .test {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .canvas {
+            border: 1px solid #000000;
+        }
+    </style>
+    <script type="text/javascript" src="src/draw.js"></script>
+    <script type="text/javascript">
+        window.addEventListener('DOMContentLoaded',function () {
+            const node = document.getElementById('canvas');
+            node.setAttribute('height', '1000');
+            node.setAttribute('width', '1600');
+        });
+    </script>
+</head>
+<body>
+    <div>
+        <hexagonal-layout-manager id="canvas"></hexagonal-layout-manager>
+    </div>
+</body>
+</html>
