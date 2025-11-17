@@ -6,16 +6,15 @@
     <script type="text/javascript" src="src/draw.js"></script>
     <script type="text/javascript">
         let grid;
-        window.addEventListener('DOMContentLoaded',function () {
+        window.addEventListener('DOMContentLoaded', () => {
             grid = document.getElementById('canvas');
             grid.setAttribute('height', '2600');
 
-            grid.addEventListener("tile-click", function(e) {
-               console.log(e.detail);
-
-                grid.drawHQ(e.detail.cell.row, e.detail.cell.col);
+            grid.addEventListener("tile-click", (evt) => {
+                const cell = evt.detail.cell;
+                grid.drawHQ(cell.row, cell.col);
             });
-            grid.addEventListener("after-draw", function(e) {
+            grid.addEventListener("after-draw", () => {
                 grid.drawMud(10, 20);
                 grid.drawInnerMud(28, 29);
 

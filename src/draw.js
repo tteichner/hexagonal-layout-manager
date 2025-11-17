@@ -83,17 +83,18 @@ class HexagonalLayoutManager extends HTMLElement {
 
         const opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
         opts.fillStyle = this._generateColor(110);
+        opts.indexes = true;
         this._drawShape(x, y, coords, opts);
     }
 
     _drawShape(x, y, coords, opts) {
         x *= 1;
         y *= 1;
+        const isOdd = x % 2 !== 0;
 
         coords.forEach((row, idx) => {
             if (row.length === 2 && typeof row[0] === 'number') {
                 let start = row[0];
-                const isOdd = x % 2 !== 0;
                 const end = row[1];
                 row = [];
                 while (start <= end) {
@@ -104,13 +105,25 @@ class HexagonalLayoutManager extends HTMLElement {
                     }
                     start++;
                 }
+            } else if (isOdd && idx % 2 === 0) {
+                row.forEach((cord, ci) => {
+                    if (ci % 2 === 0) {
+                        cord[1] += 1;
+                    }
+                });
             }
+            console.log(row);
 
             row.forEach(cord => {
                 const cell = this._cells.find(c => {
                     return c.row === x + cord[0] && c.col === y + cord[1];
                 });
                 this._drawPoly(cell.polygon, null, opts);
+
+                if (opts.indexes) {
+                    const title = `${cell.row}:${cell.col}`;
+                    this._addLabelText(cell.polygon, title);
+                }
             });
         });
     }
@@ -132,15 +145,14 @@ class HexagonalLayoutManager extends HTMLElement {
 
                 const title = `${row}:${col}`;
                 polygon.setAttribute('title', title);
+                if (opts.indexes) {
+                    this._addLabelText(polygon, title);
+                }
 
                 this._cells.push({
                     x, y, row, col, polygon, title
                 });
                 this.ctx.appendChild(polygon);
-
-                if (opts.indexes && (col + row) % 7 === 0) {
-                    this._addLabelText(polygon, title);
-                }
             }
         }
 
