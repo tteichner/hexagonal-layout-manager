@@ -19,6 +19,30 @@ class HexagonalLayoutManager extends HTMLElement {
         return this._cells;
     };
 
+    storage = {
+        add: function (key, val) {
+            let values = window.localStorage.getItem(`HexGrid:${key}`);
+            if (values) {
+                values = JSON.parse(values);
+            } else {
+                values = [];
+            }
+            values.push(val);
+            window.localStorage.setItem(`HexGrid:${key}`, JSON.stringify(val));
+        },
+
+        set: function (key, val) {
+            window.localStorage.setItem(`HexGrid:${key}`, JSON.stringify(val));
+        },
+
+        get: function (key) {
+            const val = window.localStorage.getItem(`HexGrid:${key}`);
+            if (val) {
+                return JSON.parse(val);
+            }
+        }
+    }
+
     drawMud(x, y, options = {}) {
         const coords = [
             [0,36],[-1,36],[-1,37],[-2,37],[-2,38],[-3,38],[-3,39],[-4,39],[-4,40],[-5,40],[-5,41],[-6,41],[-6,42],[-7,42],[-7,43],[-8,43],[-8,44],[-9,44],[-9,45],[-10,45],[-10,46],[-11,46],[-11,47],[-12,47],[-12,48],[-13,48],[-13,49],[-14,49],[-14,50],[-15,50],[-15,51],[-16,51],[-16,52],[-17,52],[-17,53],[-18,53],[-17,53],[-17,52],[-16,52],[-16,51],[-15,51],[-15,50],[-14,50],[-14,49],[-13,49],[-13,48],[-12,48],[-12,47],[-11,47],[-11,46],[-10,46],[-10,45],[-9,45],[-9,44],[-8,44],[-8,43],[-7,43],[-7,42],[-6,42],[-6,41],[-5,41],[-5,40],[-4,40],[-4,39],[-3,39],[-3,38],[-2,38],[-2,37],[-1,37],[-1,36],[0,36]
@@ -65,7 +89,6 @@ class HexagonalLayoutManager extends HTMLElement {
     _drawShape(x, y, coords, opts) {
         x *= 1;
         y *= 1;
-        console.log("x,y", x, y)
 
         coords.forEach((row, idx) => {
             if (row.length === 2 && typeof row[0] === 'number') {
@@ -105,18 +128,18 @@ class HexagonalLayoutManager extends HTMLElement {
                 y = opts.radius * 2 + offset * row * Math.sqrt(3);
 
                 if (row % 2 !== 0) x += offset;
-
                 const polygon = this._drawPoly(x, y, opts);
 
+                const title = `${row}:${col}`;
+                polygon.setAttribute('title', title);
+
                 this._cells.push({
-                    x, y, row, col, polygon
+                    x, y, row, col, polygon, title
                 });
                 this.ctx.appendChild(polygon);
 
-                const text = `${row}:${col}`;
-                polygon.setAttribute('title', text);
                 if (opts.indexes && (col + row) % 7 === 0) {
-                    this._addLabelText(polygon, text);
+                    this._addLabelText(polygon, title);
                 }
             }
         }
@@ -130,7 +153,7 @@ class HexagonalLayoutManager extends HTMLElement {
     }
 
     _drawPoly(x, y, opts) {
-        let polygon;
+        let polygon, that = this;
         if (x instanceof SVGPolygonElement) {
             polygon = x;
             polygon.style.fill = opts.fillStyle ? opts.fillStyle : 'white';
@@ -141,7 +164,16 @@ class HexagonalLayoutManager extends HTMLElement {
             polygon.style.strokeWidth = '2px';
             polygon.setAttribute('points', this._hexPoints(x, y, opts.radius));
             polygon.addEventListener('click', function(event) {
-                console.log(event.target);
+                const title = this.getAttribute('title');
+                const cell = that.cells.find(c => {
+                    return c.title === title;
+                });
+                const evt = new CustomEvent("tile-click", {
+                    detail : {
+                        event, cell
+                    }
+                });
+                that.dispatchEvent(evt);
             }, false);
         }
 

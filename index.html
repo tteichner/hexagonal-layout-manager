@@ -10,10 +10,19 @@
             grid = document.getElementById('canvas');
             grid.setAttribute('height', '2600');
 
+            grid.addEventListener("tile-click", function(e) {
+               console.log(e.detail);
+
+                grid.drawHQ(e.detail.cell.row, e.detail.cell.col);
+            });
             grid.addEventListener("after-draw", function(e) {
-                grid.drawHQ(4, 4);
                 grid.drawMud(10, 20);
                 grid.drawInnerMud(28, 29);
+
+                const hqs = grid.storage.get('hqs');
+                hqs?.forEach((hq) => {
+                    grid.drawHQ(hq.x, hq.y);
+                });
             });
             grid.setAttribute('width', '3200');
         });
