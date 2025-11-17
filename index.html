@@ -8,13 +8,14 @@
         let grid;
         window.addEventListener('DOMContentLoaded',function () {
             grid = document.getElementById('canvas');
-            grid.setAttribute('height', '3000');
+            grid.setAttribute('height', '2600');
 
             grid.addEventListener("after-draw", function(e) {
-                console.log(e.detail);
                 grid.drawHQ(4, 4);
+                grid.drawMud(10, 20);
+                grid.drawInnerMud(28, 29);
             });
-            grid.setAttribute('width', '5000');
+            grid.setAttribute('width', '3200');
         });
     </script>
 </head>

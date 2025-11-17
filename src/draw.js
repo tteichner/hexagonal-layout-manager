@@ -6,7 +6,7 @@ class HexagonalLayoutManager extends HTMLElement {
         lineWidth : 1,
         fillStyle : '',
         strokeStyle : 'black',
-        randomColors : null
+        indexes : false
     };
 
     _cells = [];
@@ -19,9 +19,37 @@ class HexagonalLayoutManager extends HTMLElement {
         return this._cells;
     };
 
+    drawMud(x, y, options = {}) {
+        const coords = [
+            [0,36],[-1,36],[-1,37],[-2,37],[-2,38],[-3,38],[-3,39],[-4,39],[-4,40],[-5,40],[-5,41],[-6,41],[-6,42],[-7,42],[-7,43],[-8,43],[-8,44],[-9,44],[-9,45],[-10,45],[-10,46],[-11,46],[-11,47],[-12,47],[-12,48],[-13,48],[-13,49],[-14,49],[-14,50],[-15,50],[-15,51],[-16,51],[-16,52],[-17,52],[-17,53],[-18,53],[-17,53],[-17,52],[-16,52],[-16,51],[-15,51],[-15,50],[-14,50],[-14,49],[-13,49],[-13,48],[-12,48],[-12,47],[-11,47],[-11,46],[-10,46],[-10,45],[-9,45],[-9,44],[-8,44],[-8,43],[-7,43],[-7,42],[-6,42],[-6,41],[-5,41],[-5,40],[-4,40],[-4,39],[-3,39],[-3,38],[-2,38],[-2,37],[-1,37],[-1,36],[0,36]
+        ];
+
+        const opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
+        opts.fillStyle = this._generateColor(40);
+        this._drawShape(x, y, coords, opts);
+    }
+
+    drawInnerMud(x, y, options = {}) {
+        let opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
+        opts.fillStyle = this._generateColor(20);
+
+        let coords = [
+            [0,18],[-1,18],[-1,19],[-2,19],[-2,20],[-3,20],[-3,21],[-4,21],[-4,22],[-5,22],[-5,23],[-6,23],[-6,24],[-7,24],[-7,25],[-8,25],[-8,26],[-9,26],[-8,26],[-8,25],[-7,25],[-7,24],[-6,24],[-6,23],[-5,23],[-5,22],[-4,22],[-4,21],[-3,21],[-3,20],[-2,20],[-2,19],[-1,19],[-1,18],[0,18]
+        ];
+        this._drawShape(x, y, coords, opts);
+
+        coords = [
+            [0,4],[-1,4],[-1,5],[-2,5],[-1,5],[-1,4],[0,4]
+        ];
+
+        opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
+        opts.fillStyle = this._generateColor(20);
+        this._drawShape(x-2, y-1, coords, opts);
+        this._drawShape(x+13, y+23, coords, opts);
+        this._drawShape(x+30, y-1, coords, opts);
+    }
+
     drawHQ(x, y, options = {}) {
-        x *= 1;
-        y *= 1;
         const coords = [
             [[0, -1]],
             [[-1, -1], [0, 0], [1, -1]],
@@ -31,8 +59,30 @@ class HexagonalLayoutManager extends HTMLElement {
 
         const opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
         opts.fillStyle = this._generateColor(110);
+        this._drawShape(x, y, coords, opts);
+    }
 
-        coords.forEach(row => {
+    _drawShape(x, y, coords, opts) {
+        x *= 1;
+        y *= 1;
+        console.log("x,y", x, y)
+
+        coords.forEach((row, idx) => {
+            if (row.length === 2 && typeof row[0] === 'number') {
+                let start = row[0];
+                const isOdd = x % 2 !== 0;
+                const end = row[1];
+                row = [];
+                while (start <= end) {
+                    if (isOdd && idx % 2 === 0) {
+                        row.push([idx, start-1]);
+                    } else {
+                        row.push([idx, start]);
+                    }
+                    start++;
+                }
+            }
+
             row.forEach(cord => {
                 const cell = this._cells.find(c => {
                     return c.row === x + cord[0] && c.col === y + cord[1];
@@ -63,12 +113,10 @@ class HexagonalLayoutManager extends HTMLElement {
                 });
                 this.ctx.appendChild(polygon);
 
-                if ((col + row) % 7 === 0) {
-                    const text = `${row}:${col}`;
-                    const textOffset = [
-                        0, -6, -6, -6, -7, -9, -9, -10, -10
-                    ];
-                    this._addLabelText(polygon, text, textOffset[text.length]);
+                const text = `${row}:${col}`;
+                polygon.setAttribute('title', text);
+                if (opts.indexes && (col + row) % 7 === 0) {
+                    this._addLabelText(polygon, text);
                 }
             }
         }
