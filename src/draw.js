@@ -74,7 +74,11 @@ class HexagonalLayoutManager extends HTMLElement {
     }
 
     drawHQ(x, y, options = {}) {
-        const coords = [
+        const coords = (x % 2 !== 0) ? [
+            [[0, -1], [-1, 0], [-1, 1]],
+            [[0, 0]],
+            [[0, 1], [1, 1], [1, 0]]
+        ] : [
             [[0, -1]],
             [[-1, -1], [0, 0], [1, -1]],
             [[-1, 0], [1, 0]],
@@ -105,12 +109,6 @@ class HexagonalLayoutManager extends HTMLElement {
                     }
                     start++;
                 }
-            } else if (isOdd && idx % 2 === 0) {
-                row.forEach((cord, ci) => {
-                    if (ci % 2 === 0) {
-                        cord[1] += 1;
-                    }
-                });
             }
             console.log(row);
 
@@ -145,14 +143,15 @@ class HexagonalLayoutManager extends HTMLElement {
 
                 const title = `${row}:${col}`;
                 polygon.setAttribute('title', title);
-                if (opts.indexes) {
-                    this._addLabelText(polygon, title);
-                }
 
                 this._cells.push({
                     x, y, row, col, polygon, title
                 });
                 this.ctx.appendChild(polygon);
+
+                if (opts.indexes) {
+                    this._addLabelText(polygon, title);
+                }
             }
         }
 
