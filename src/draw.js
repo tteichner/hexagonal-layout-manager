@@ -9,18 +9,22 @@ class HexagonalLayoutManager extends HTMLElement {
         indexes : false
     };
 
+    _history = [];
+
     _cells = [];
 
     _root = null;
 
     _opts = null;
 
+    _bound = false;
+
     get cells() {
         return this._cells;
     };
 
     storage = {
-        add: function (key, val) {
+        add : function(key, val) {
             let values = window.localStorage.getItem(`HexGrid:${key}`);
             if (values) {
                 values = JSON.parse(values);
@@ -31,11 +35,11 @@ class HexagonalLayoutManager extends HTMLElement {
             window.localStorage.setItem(`HexGrid:${key}`, JSON.stringify(val));
         },
 
-        set: function (key, val) {
+        set : function(key, val) {
             window.localStorage.setItem(`HexGrid:${key}`, JSON.stringify(val));
         },
 
-        get: function (key) {
+        get : function(key) {
             const val = window.localStorage.getItem(`HexGrid:${key}`);
             if (val) {
                 return JSON.parse(val);
@@ -45,7 +49,7 @@ class HexagonalLayoutManager extends HTMLElement {
 
     drawMud(x, y, options = {}) {
         const coords = [
-            [0,36],[-1,36],[-1,37],[-2,37],[-2,38],[-3,38],[-3,39],[-4,39],[-4,40],[-5,40],[-5,41],[-6,41],[-6,42],[-7,42],[-7,43],[-8,43],[-8,44],[-9,44],[-9,45],[-10,45],[-10,46],[-11,46],[-11,47],[-12,47],[-12,48],[-13,48],[-13,49],[-14,49],[-14,50],[-15,50],[-15,51],[-16,51],[-16,52],[-17,52],[-17,53],[-18,53],[-17,53],[-17,52],[-16,52],[-16,51],[-15,51],[-15,50],[-14,50],[-14,49],[-13,49],[-13,48],[-12,48],[-12,47],[-11,47],[-11,46],[-10,46],[-10,45],[-9,45],[-9,44],[-8,44],[-8,43],[-7,43],[-7,42],[-6,42],[-6,41],[-5,41],[-5,40],[-4,40],[-4,39],[-3,39],[-3,38],[-2,38],[-2,37],[-1,37],[-1,36],[0,36]
+            [0, 36], [-1, 36], [-1, 37], [-2, 37], [-2, 38], [-3, 38], [-3, 39], [-4, 39], [-4, 40], [-5, 40], [-5, 41], [-6, 41], [-6, 42], [-7, 42], [-7, 43], [-8, 43], [-8, 44], [-9, 44], [-9, 45], [-10, 45], [-10, 46], [-11, 46], [-11, 47], [-12, 47], [-12, 48], [-13, 48], [-13, 49], [-14, 49], [-14, 50], [-15, 50], [-15, 51], [-16, 51], [-16, 52], [-17, 52], [-17, 53], [-18, 53], [-17, 53], [-17, 52], [-16, 52], [-16, 51], [-15, 51], [-15, 50], [-14, 50], [-14, 49], [-13, 49], [-13, 48], [-12, 48], [-12, 47], [-11, 47], [-11, 46], [-10, 46], [-10, 45], [-9, 45], [-9, 44], [-8, 44], [-8, 43], [-7, 43], [-7, 42], [-6, 42], [-6, 41], [-5, 41], [-5, 40], [-4, 40], [-4, 39], [-3, 39], [-3, 38], [-2, 38], [-2, 37], [-1, 37], [-1, 36], [0, 36]
         ];
 
         const opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
@@ -56,21 +60,22 @@ class HexagonalLayoutManager extends HTMLElement {
     drawInnerMud(x, y, options = {}) {
         let opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
         opts.fillStyle = this._generateColor(20);
+        opts.collide = true;
 
         let coords = [
-            [0,18],[-1,18],[-1,19],[-2,19],[-2,20],[-3,20],[-3,21],[-4,21],[-4,22],[-5,22],[-5,23],[-6,23],[-6,24],[-7,24],[-7,25],[-8,25],[-8,26],[-9,26],[-8,26],[-8,25],[-7,25],[-7,24],[-6,24],[-6,23],[-5,23],[-5,22],[-4,22],[-4,21],[-3,21],[-3,20],[-2,20],[-2,19],[-1,19],[-1,18],[0,18]
+            [0, 18], [-1, 18], [-1, 19], [-2, 19], [-2, 20], [-3, 20], [-3, 21], [-4, 21], [-4, 22], [-5, 22], [-5, 23], [-6, 23], [-6, 24], [-7, 24], [-7, 25], [-8, 25], [-8, 26], [-9, 26], [-8, 26], [-8, 25], [-7, 25], [-7, 24], [-6, 24], [-6, 23], [-5, 23], [-5, 22], [-4, 22], [-4, 21], [-3, 21], [-3, 20], [-2, 20], [-2, 19], [-1, 19], [-1, 18], [0, 18]
         ];
         this._drawShape(x, y, coords, opts);
 
         coords = [
-            [0,4],[-1,4],[-1,5],[-2,5],[-1,5],[-1,4],[0,4]
+            [0, 4], [-1, 4], [-1, 5], [-2, 5], [-1, 5], [-1, 4], [0, 4]
         ];
 
         opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
         opts.fillStyle = this._generateColor(20);
-        this._drawShape(x-2, y-1, coords, opts);
-        this._drawShape(x+13, y+23, coords, opts);
-        this._drawShape(x+30, y-1, coords, opts);
+        this._drawShape(x - 2, y - 1, coords, opts);
+        this._drawShape(x + 13, y + 23, coords, opts);
+        this._drawShape(x + 30, y - 1, coords, opts);
     }
 
     drawHQ(x, y, options = {}) {
@@ -85,16 +90,38 @@ class HexagonalLayoutManager extends HTMLElement {
             [[0, 1]]
         ];
 
-        const opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
-        opts.fillStyle = this._generateColor(110);
-        opts.indexes = true;
-        this._drawShape(x, y, coords, opts);
+        if (this._shapeCollide(x, y, coords)) {
+            alert('collision');
+        } else {
+            const opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
+            opts.fillStyle = this._generateColor(110);
+            // opts.indexes = true;
+            opts.collide = true;
+
+            this._drawShape(x, y, coords, opts);
+        }
+    }
+
+    _shapeCollide(x, y, coords) {
+        let yes = false;
+        coords.forEach((row, idx) => {
+            row.forEach(cord => {
+                const cell = this._cells.find(c => {
+                    return c.row === x + cord[0] && c.col === y + cord[1];
+                });
+                if (cell.polygon.collide) {
+                    yes = true;
+                }
+            });
+        });
+        return yes;
     }
 
     _drawShape(x, y, coords, opts) {
         x *= 1;
         y *= 1;
         const isOdd = x % 2 !== 0;
+        const history = [];
 
         coords.forEach((row, idx) => {
             if (row.length === 2 && typeof row[0] === 'number') {
@@ -103,27 +130,32 @@ class HexagonalLayoutManager extends HTMLElement {
                 row = [];
                 while (start <= end) {
                     if (isOdd && idx % 2 === 0) {
-                        row.push([idx, start-1]);
+                        row.push([idx, start - 1]);
                     } else {
                         row.push([idx, start]);
                     }
                     start++;
                 }
             }
-            console.log(row);
 
             row.forEach(cord => {
                 const cell = this._cells.find(c => {
                     return c.row === x + cord[0] && c.col === y + cord[1];
                 });
+                const orig = {
+                    bgColor: cell.polygon.style.fill,
+                    polygon: cell.polygon
+                };
                 this._drawPoly(cell.polygon, null, opts);
 
                 if (opts.indexes) {
                     const title = `${cell.row}:${cell.col}`;
-                    this._addLabelText(cell.polygon, title);
+                    orig.label = this._addLabelText(cell.polygon, title);
                 }
+                history.push(orig);
             });
         });
+        this._history.push(history);
     }
 
     drawGrid(cols, rows, options = {}) {
@@ -161,6 +193,25 @@ class HexagonalLayoutManager extends HTMLElement {
             }
         });
         this.dispatchEvent(event);
+
+        const that = this;
+        if (!this._bound) {
+            this._bound = true;
+            window.addEventListener('keyup', (e) => {
+                const evt = window.event ? window.event : e;
+                if (evt.ctrlKey && evt.key === 'z') {
+                    const operation = that._history.pop();
+
+                    operation.forEach((cell, i) => {
+                        cell.polygon.style.fill = cell.bgColor;
+                        cell.polygon.collide = false;
+                        if (cell.label) {
+                            cell.label.remove();
+                        }
+                    });
+                }
+            });
+        }
     }
 
     _drawPoly(x, y, opts) {
@@ -168,6 +219,7 @@ class HexagonalLayoutManager extends HTMLElement {
         if (x instanceof SVGPolygonElement) {
             polygon = x;
             polygon.style.fill = opts.fillStyle ? opts.fillStyle : 'white';
+            polygon.collide = !!opts.collide;
         } else {
             polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
             polygon.style.fill = opts.fillStyle ? opts.fillStyle : 'white';
@@ -203,8 +255,8 @@ class HexagonalLayoutManager extends HTMLElement {
         textElem.setAttribute("text-anchor", "middle");
         textElem.classList.add("label-text");
         textElem.textContent = labelText;
-        // Add this text element directly after the label background path
         polygon.after(textElem);
+        return textElem;
     }
 
     _hexPoints(x, y, radius) {
@@ -217,7 +269,6 @@ class HexagonalLayoutManager extends HTMLElement {
 
             points.push(pointX + ',' + pointY);
         }
-
         return points.join(' ');
     }
 

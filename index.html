@@ -3,17 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>HexGrid</title>
+    <style>
+        .hexagonal-layout-manager-ctrl {
+            position: relative;
+        }
+    </style>
+
     <script type="text/javascript" src="src/draw.js"></script>
+    <script type="text/javascript" src="src/ctrl.js"></script>
     <script type="text/javascript">
-        let grid;
+        let grid, ctrl;
         window.addEventListener('DOMContentLoaded', () => {
+            ctrl = document.createElement('hexagonal-layout-manager-ctrl');
+            ctrl.setAttribute('grid', 'canvas');
+            ctrl.setAttribute('id', 'canvas-ctrl');
+            document.getElementById('body').appendChild(ctrl);
+
             grid = document.getElementById('canvas');
             grid.setAttribute('height', '2600');
 
-            grid.addEventListener("tile-click", (evt) => {
-                const cell = evt.detail.cell;
-                grid.drawHQ(cell.row, cell.col);
-            });
             grid.addEventListener("after-draw", () => {
                 grid.drawMud(10, 20);
                 grid.drawInnerMud(28, 29);
@@ -27,9 +35,7 @@
         });
     </script>
 </head>
-<body>
-    <div>
-        <hexagonal-layout-manager id="canvas"></hexagonal-layout-manager>
-    </div>
+<body id="body">
+    <hexagonal-layout-manager id="canvas"></hexagonal-layout-manager>
 </body>
 </html>
