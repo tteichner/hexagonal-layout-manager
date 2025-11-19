@@ -11,6 +11,8 @@ class HexagonalLayoutManager extends HTMLElement {
 
     _history = [];
 
+    _shapes = [];
+
     _cells = [];
 
     _root = null;
@@ -21,6 +23,10 @@ class HexagonalLayoutManager extends HTMLElement {
 
     get cells() {
         return this._cells;
+    };
+
+    get shapes() {
+        return this._shapes;
     };
 
     storage = {
@@ -95,7 +101,6 @@ class HexagonalLayoutManager extends HTMLElement {
         } else {
             const opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
             opts.fillStyle = this._generateColor(110);
-            // opts.indexes = true;
             opts.collide = true;
 
             this._drawShape(x, y, coords, opts);
@@ -156,6 +161,9 @@ class HexagonalLayoutManager extends HTMLElement {
             });
         });
         this._history.push(history);
+        this._shapes.push({
+            x, y, coords, opts
+        });
     }
 
     drawGrid(cols, rows, options = {}) {
@@ -200,6 +208,7 @@ class HexagonalLayoutManager extends HTMLElement {
             window.addEventListener('keyup', (e) => {
                 const evt = window.event ? window.event : e;
                 if (evt.ctrlKey && evt.key === 'z') {
+                   that._shapes.pop();
                     const operation = that._history.pop();
 
                     operation.forEach((cell, i) => {
@@ -281,7 +290,7 @@ class HexagonalLayoutManager extends HTMLElement {
         ].join(', ')})`
     }
 
-    draw() {
+    draw(shapes = []) {
         // get config from attributes
         const width = (this.getAttribute('width')) ? this.getAttribute('width') * 1 : 500;
         const height = (!this.getAttribute('height') && width) ? width : this.getAttribute('height') * 1 || 500;
@@ -304,6 +313,12 @@ class HexagonalLayoutManager extends HTMLElement {
         this.drawGrid(w, h, {
             radius : radius
         });
+
+        if (shapes?.length) {
+            shapes.forEach(shape => {
+                this._drawShape(shape.x, shape.y, shape.coords, shape.opts);
+            });
+        }
     }
 
     constructor() {

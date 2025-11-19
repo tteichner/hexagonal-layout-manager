@@ -6,33 +6,56 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
     draw() {
         const that = this;
 
-        this._root.innerHTML = `<div id="control"><h4>Elemente</h4><ul>
-    <li><span class="button" id="select-hq">+HQ</span></li>
-    <li><span class="button" id="select-tile">+Tile</span></li>
-</ul></div>`;
+        this._root.innerHTML = `<div id="control">
+            <div class="row items">
+                <h4>Elemente</h4>
+                <ul>
+                    <li><span class="button" id="select-hq">+HQ</span></li>
+                    <li><span class="button" id="select-tile">+Tile</span></li>
+                </ul>
+            </div>
+            <div class="row items">
+                <span class="button" id="refresh">Clear all</span>
+                <span class="button" id="load">Load</span>
+                <span class="button" id="save">Save</span>
+            </div>
+        </div>`;
 
         const style = document.createElement('style');
         style.innerHTML = `
         * {
             box-sizing: content-box;
             padding: 0;
+            font-family: Arial, sans-serif;
         }
         
+        h4 {
+            margin: 0;
+            padding: 5px;
+        }
+        
+        #control .row:first-child {
+            flex-grow: 1;
+        }
+
         #control {
             position: fixed;
             top: 0;
             right: 0;
-            height: 150px;
+            height: 190px;
             width: 100px;
             border-left: 1px solid #ccc;
-            border-botton: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
             padding: 0px;
             background: #fff;
+            flex-direction: column;
+            display: flex;
         }
         
         ul {
             list-style-type: none;
             padding-inline-start: 0;
+            margin: 0;
         }
         
         li {
@@ -61,6 +84,20 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
         this._root.appendChild(style);
 
         this.grid = document.getElementById(this.getAttribute("grid"));
+
+        this._root.getElementById('load').addEventListener('click', () => {
+            const items = this.grid.storage.get('hqs');
+            this.grid.draw(items);
+        });
+
+        this._root.getElementById('refresh').addEventListener('click', () => {
+            this.grid.storage.set('hqs', []);
+            window.location.reload();
+        });
+
+        this._root.getElementById('save').addEventListener('click', () => {
+            this.grid.storage.set('hqs', this.grid.shapes);
+        });
 
         this._root.getElementById('select-hq').addEventListener('click', function() {
             for (let i=0; i<this.parentNode.parentNode.children.length; i++) {

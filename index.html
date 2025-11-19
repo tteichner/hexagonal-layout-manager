@@ -25,11 +25,6 @@
             grid.addEventListener("after-draw", () => {
                 grid.drawMud(10, 20);
                 grid.drawInnerMud(28, 29);
-
-                const hqs = grid.storage.get('hqs');
-                hqs?.forEach((hq) => {
-                    grid.drawHQ(hq.x, hq.y);
-                });
             });
             grid.setAttribute('width', '3200');
         });
