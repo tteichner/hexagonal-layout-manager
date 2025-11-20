@@ -21,6 +21,8 @@ class HexagonalLayoutManager extends HTMLElement {
 
     _bound = false;
 
+    _shapeIndex = -1;
+
     get cells() {
         return this._cells;
     };
@@ -153,6 +155,7 @@ class HexagonalLayoutManager extends HTMLElement {
         y *= 1;
         const isOdd = x % 2 !== 0;
         const history = [];
+        this._shapeIndex++;
 
         coords.forEach((row, idx) => {
             if (row.length === 2 && typeof row[0] === 'number') {
@@ -175,12 +178,14 @@ class HexagonalLayoutManager extends HTMLElement {
                 });
                 const orig = {
                     bgColor: cell.polygon.style.fill,
-                    polygon: cell.polygon
+                    polygon: cell.polygon,
+                    shapeIndex: this._shapeIndex + 1
                 };
                 this._drawPoly(cell.polygon, null, opts);
 
                 if (opts.entityType) {
                     cell.polygon.entityType = opts.entityType;
+                    cell.polygon.shapeIndex = orig.shapeIndex;
                 }
                 if (opts.indexes) {
                     const title = `${cell.row}:${cell.col}`;
@@ -189,9 +194,10 @@ class HexagonalLayoutManager extends HTMLElement {
                 history.push(orig);
             });
         });
+
         this._history.push(history);
         this._shapes.push({
-            x, y, coords, opts
+            x, y, coords, opts, shapeIndex: this._shapeIndex + 1
         });
     }
 
@@ -244,6 +250,7 @@ class HexagonalLayoutManager extends HTMLElement {
                         cell.polygon.style.fill = cell.bgColor;
                         cell.polygon.entityType = null;
                         cell.polygon.collide = false;
+                        cell.polygon.shapeIndex = null;
                         if (cell.label) {
                             cell.label.remove();
                         }
@@ -265,6 +272,21 @@ class HexagonalLayoutManager extends HTMLElement {
             polygon.style.stroke = 'black';
             polygon.style.strokeWidth = '2px';
             polygon.setAttribute('points', this._hexPoints(x, y, opts.radius));
+            polygon.addEventListener('mouseenter', function(event) {
+                if (this.shapeIndex > -1) {
+                    const shape = that.shapes.find(c => {
+                        return c.shapeIndex === this.shapeIndex;
+                    });
+                    if (shape) {
+                        const evt = new CustomEvent("tile-over", {
+                            detail : {
+                                event, shape
+                            }
+                        });
+                        that.dispatchEvent(evt);
+                    }
+                }
+            });
             polygon.addEventListener('click', function(event) {
                 const title = this.getAttribute('title');
                 const cell = that.cells.find(c => {

@@ -1,7 +1,4 @@
 class HexagonalLayoutManagerCtrl extends HTMLElement {
-    defaultGridOptions = {
-
-    };
 
     draw() {
         const that = this;
@@ -61,8 +58,9 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
             display: flex;
         }
         
+        #dialog input,
         #dialog button {
-            padding: 0 10px;
+            padding: 0 6px;
         }
    
         #dialog button,
@@ -98,6 +96,23 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
         .button.selected {
             color: #000;
             font-weight: bold;
+        }
+        
+        .tooltip {
+            position: fixed;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 6px;
+            z-index: 2;
+            visibility: visible;
+            opacity: 1;
+            background: #fff;
+        }
+        
+        .hidden {
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s 3s, opacity 3s linear;
         }
         
         .button {
@@ -157,6 +172,31 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
             this.classList.add("selected");
         });
 
+        this.grid.addEventListener("tile-over", (evt) => {
+            if (evt.detail.shape.label) {
+                const x = evt.detail.event.clientX;
+                const y = evt.detail.event.clientY;
+
+                const id = `shape-tooltip-${evt.detail.shape.shapeIndex}`;
+                if (this._root.getElementById(id)) {
+                    return;
+                }
+
+                const tooltip = document.createElement('div');
+                tooltip.classList.add("tooltip");
+                tooltip.innerHTML = evt.detail.shape.label;
+                tooltip.id = id;
+                tooltip.style.left = x + 'px';
+                tooltip.style.top = (y - 10) + 'px';
+
+                this._root.appendChild(tooltip);
+                window.setTimeout(() => {
+                    this._root.removeChild(tooltip);
+                }, 3000);
+                // tooltip.classList.add('hidden');
+            }
+        });
+
         this.grid.addEventListener("tile-click", (evt) => {
             const cell = evt.detail.cell;
             if (that.selectedType === 'hq') {
@@ -166,18 +206,24 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
             } else {
                 if (cell.polygon.entityType === 'hq') {
                     // Add a label
-                    let label = cell.polygon.getAttribute('label') || '';
+                    let shape = null;
+                    this.grid.shapes.forEach((_shape) => {
+                        if (cell.polygon.shapeIndex === _shape.shapeIndex) {
+                            shape = _shape;
+                        }
+                    });
+
                     const dialog = this._root.querySelector("dialog");
                     dialog.showModal();
 
                     const ip = dialog.querySelector('input');
-                    ip.value = label;
+                    ip.value = shape.label || null;
 
                     const btn = this._root.querySelector("dialog #save-hq");
                     if (!btn.classList.contains("bound")) {
                         btn.classList.add("bound");
                         btn.addEventListener("click", () => {
-                            cell.polygon.setAttribute('label', ip.value);
+                            shape.label = ip.value;
                             dialog.close();
                         });
                     }
