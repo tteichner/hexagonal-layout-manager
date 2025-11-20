@@ -197,7 +197,7 @@ class HexagonalLayoutManager extends HTMLElement {
 
         this._history.push(history);
         this._shapes.push({
-            x, y, coords, opts, shapeIndex: this._shapeIndex + 1
+            x, y, coords, opts, shapeIndex: this._shapeIndex + 1, label: (opts.label) ? opts.label : ''
         });
     }
 
@@ -368,6 +368,7 @@ class HexagonalLayoutManager extends HTMLElement {
 
         if (shapes?.length) {
             shapes.forEach(shape => {
+                shape.opts.label = (shape.label) ? shape.label : null;
                 this._drawShape(shape.x, shape.y, shape.coords, shape.opts);
             });
         }

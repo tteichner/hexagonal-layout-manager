@@ -109,10 +109,14 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
             background: #fff;
         }
         
-        .hidden {
-            visibility: hidden;
-            opacity: 0;
-            transition: visibility 0s 3s, opacity 3s linear;
+        .fades {
+            opacity: 1;
+            animation: fade 3s linear;
+        }
+        
+        @keyframes fade {
+          0%,100% { opacity: 0 }
+          50% { opacity: 1 }
         }
         
         .button {
@@ -193,7 +197,7 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
                 window.setTimeout(() => {
                     this._root.removeChild(tooltip);
                 }, 3000);
-                // tooltip.classList.add('hidden');
+                tooltip.classList.add('fades');
             }
         });
 
