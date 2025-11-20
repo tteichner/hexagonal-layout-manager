@@ -75,21 +75,25 @@ class HexagonalLayoutManager extends HTMLElement {
         ];
         this._drawShape(x, y, coords, opts);
 
+        // Cannon circles
         coords = [
             [0,4],[-1,4],[-1,5],[-2,5],[-2,6],[-2,5],[-1,5],[-1,4],[0,4]
         ];
-
         opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
         opts.fillStyle = this._generateColor(20);
+        opts.collide = true;
+
         this._drawShape(x - 3, y - 1, coords, opts);
         this._drawShape(x + 13, y + 24, coords, opts);
         this._drawShape(x + 31, y - 1, coords, opts);
 
+        // Cannons
         coords = [
             [0,2],[-1,2],[-1,3],[-1,2],[0,2]
         ];
         opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
         opts.fillStyle = this._generateColor(200, 0.2, 0.8);
+        opts.collide = true;
 
         this._drawShape(x-1, y, coords, opts);
         this._drawShape(x + 15, y + 25, coords, opts);
