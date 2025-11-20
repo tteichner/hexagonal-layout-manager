@@ -19,7 +19,16 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
                 <span class="button" id="load">Load</span>
                 <span class="button" id="save">Save</span>
             </div>
-        </div>`;
+        </div>
+        <dialog id="dialog">
+          <form>
+            <div class="form-group">
+                <label for="hq">HQ Owner</label>
+                <input type="text" id="hq" name="hq" class="form-control" />
+            </div>
+            <p><button type="button" id="save-hq" autofocus>Save + Close</button></p>
+          </form>
+        </dialog>`;
 
         const style = document.createElement('style');
         style.innerHTML = `
@@ -50,6 +59,30 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
             background: #fff;
             flex-direction: column;
             display: flex;
+        }
+        
+        #dialog button {
+            padding: 0 10px;
+        }
+   
+        #dialog button,
+        #dialog label,
+        #dialog input {
+            line-height: 24px;
+        }
+        
+        #dialog p {
+            text-align: center;
+        }
+        
+        #dialog {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 6px;
+        }
+        
+        .form-group {
+            margin: 0 0 10px 0;
         }
         
         ul {
@@ -130,6 +163,25 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
                 this.grid.drawHQ(cell.row, cell.col);
             } else if (that.selectedType === 'tile') {
                 this.grid.drawTile(cell.row, cell.col);
+            } else {
+                if (cell.polygon.entityType === 'hq') {
+                    // Add a label
+                    let label = cell.polygon.getAttribute('label') || '';
+                    const dialog = this._root.querySelector("dialog");
+                    dialog.showModal();
+
+                    const ip = dialog.querySelector('input');
+                    ip.value = label;
+
+                    const btn = this._root.querySelector("dialog #save-hq");
+                    if (!btn.classList.contains("bound")) {
+                        btn.classList.add("bound");
+                        btn.addEventListener("click", () => {
+                            cell.polygon.setAttribute('label', ip.value);
+                            dialog.close();
+                        });
+                    }
+                }
             }
         });
     }

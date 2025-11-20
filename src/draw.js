@@ -127,6 +127,7 @@ class HexagonalLayoutManager extends HTMLElement {
             const opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
             opts.fillStyle = this._generateColor(110);
             opts.collide = true;
+            opts.entityType = 'hq';
 
             this._drawShape(x, y, coords, opts);
         }
@@ -178,6 +179,9 @@ class HexagonalLayoutManager extends HTMLElement {
                 };
                 this._drawPoly(cell.polygon, null, opts);
 
+                if (opts.entityType) {
+                    cell.polygon.entityType = opts.entityType;
+                }
                 if (opts.indexes) {
                     const title = `${cell.row}:${cell.col}`;
                     orig.label = this._addLabelText(cell.polygon, title);
@@ -238,6 +242,7 @@ class HexagonalLayoutManager extends HTMLElement {
 
                     operation.forEach((cell, i) => {
                         cell.polygon.style.fill = cell.bgColor;
+                        cell.polygon.entityType = null;
                         cell.polygon.collide = false;
                         if (cell.label) {
                             cell.label.remove();
