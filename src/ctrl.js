@@ -126,9 +126,10 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
 
         this.grid.addEventListener("tile-click", (evt) => {
             const cell = evt.detail.cell;
-
             if (that.selectedType === 'hq') {
                 this.grid.drawHQ(cell.row, cell.col);
+            } else if (that.selectedType === 'tile') {
+                this.grid.drawTile(cell.row, cell.col);
             }
         });
     }

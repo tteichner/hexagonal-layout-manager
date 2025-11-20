@@ -94,6 +94,21 @@ class HexagonalLayoutManager extends HTMLElement {
         this._drawShape(x + 33, y, coords, opts);
     }
 
+    drawTile(x, y, options = {}) {
+        const coords = [
+            [[0, 0]]
+        ];
+
+        if (this._shapeCollide(x, y, coords)) {
+            alert('collision');
+        } else {
+            const opts = {...JSON.parse(JSON.stringify(this._opts)), ...options};
+            opts.fillStyle = this._generateColor(200);
+            opts.collide = true;
+            this._drawShape(x, y, coords, opts);
+        }
+    }
+
     drawHQ(x, y, options = {}) {
         const coords = (x % 2 !== 0) ? [
             [[0, -1], [-1, 0], [-1, 1]],
@@ -124,7 +139,7 @@ class HexagonalLayoutManager extends HTMLElement {
                 const cell = this._cells.find(c => {
                     return c.row === x + cord[0] && c.col === y + cord[1];
                 });
-                if (cell.polygon.collide) {
+                if (cell?.polygon.collide) {
                     yes = true;
                 }
             });
