@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>HexGrid</title>
+    <title id="title">loading...</title>
+    <link rel="shortcut icon" href="asset/icon.png" />
     <style>
         .hexagonal-layout-manager-ctrl {
             position: relative;
@@ -27,6 +28,17 @@
                 grid.drawInnerMud(28, 29);
             });
             grid.setAttribute('width', '3200');
+
+            fetch('./package.json')
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    document.title = `Hexagonal layout manager v${data.version} | Teichner Web&PC`;
+                })
+                .catch(function(error) {
+                    console.error(error);
+                });
         });
     </script>
 </head>
