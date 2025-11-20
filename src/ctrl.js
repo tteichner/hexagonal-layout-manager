@@ -15,9 +15,20 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
                 <span class="button" id="refresh">Clear all</span>
                 <span class="button" id="load">Load</span>
                 <span class="button" id="save">Save</span>
+                <span class="button" id="download">Export</span>
+                <span class="button" id="import">Import</span>
             </div>
         </div>
-        <dialog id="dialog">
+        <dialog id="import-dialog" class="dialog">
+          <form>
+            <div class="form-group">
+                <label for="hq">HQs</label>
+                <input type="file" id="hq" name="hq" class="form-control" />
+            </div>
+            <p><button type="button" id="do-import" autofocus>Save + Close</button></p>
+          </form>
+        </dialog>
+        <dialog id="dialog" class="dialog">
           <form>
             <div class="form-group">
                 <label for="hq">HQ Owner</label>
@@ -48,7 +59,7 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
             position: fixed;
             top: 0;
             right: 0;
-            height: 190px;
+            height: 250px;
             width: 100px;
             border-left: 1px solid #ccc;
             border-bottom: 1px solid #ccc;
@@ -58,22 +69,22 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
             display: flex;
         }
         
-        #dialog input,
-        #dialog button {
+        .dialog input,
+        .dialog button {
             padding: 0 6px;
         }
    
-        #dialog button,
-        #dialog label,
-        #dialog input {
+        .dialog button,
+        .dialog label,
+        .dialog input {
             line-height: 24px;
         }
         
-        #dialog p {
+        .dialog p {
             text-align: center;
         }
         
-        #dialog {
+        .dialog {
             border: 1px solid #ccc;
             border-radius: 4px;
             padding: 6px;
@@ -142,6 +153,51 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
             this.grid.draw(items);
         });
 
+        this._root.getElementById('import').addEventListener('click', () => {
+            const dialog = this._root.querySelector("#import-dialog");
+            dialog.showModal();
+
+            const ip = dialog.querySelector('input');
+
+            const btn = this._root.querySelector("#import-dialog button");
+            if (!btn.classList.contains("bound")) {
+                btn.classList.add("bound");
+                btn.addEventListener("click", () => {
+                    const selectedFile = ip.files[0];
+                    if (selectedFile.type !== 'application/json' && selectedFile.type !== 'text/json') {
+                        alert("Unsupported file type. Please select a text file.");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const shapes = JSON.parse(reader.result);
+                        this.grid.shapes.length = 0;
+                        this.grid.draw(shapes);
+                        this.grid.storage.set('hqs', shapes);
+
+                        dialog.close();
+                    };
+                    reader.onerror = () => {
+                        alert("Error reading the file. Please try again.");
+                    };
+                    reader.readAsText(selectedFile);
+                });
+            }
+        });
+
+        this._root.getElementById('download').addEventListener('click', () => {
+            const downloadLink = document.createElement('a');
+            downloadLink.download = 'hqs.json';
+            const blob = new Blob([JSON.stringify(this.grid.shapes)], { type: 'text/json' });
+            downloadLink.href = window.URL.createObjectURL(blob);
+            downloadLink.style.display = this.display;
+            downloadLink.onclick = (event) => {
+                document.body.removeChild(event.target);
+            };
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+        });
+
         this._root.getElementById('refresh').addEventListener('click', () => {
             this.grid.storage.set('hqs', []);
             window.location.reload();
@@ -163,6 +219,7 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
             that.selectedType = 'hq';
             this.classList.add("selected");
         });
+
         this._root.getElementById('select-tile').addEventListener('click', function() {
             for (let i=0; i<this.parentNode.parentNode.children.length; i++) {
                 this.parentNode.parentNode.children[i].firstChild.classList.remove("selected");
@@ -217,7 +274,7 @@ class HexagonalLayoutManagerCtrl extends HTMLElement {
                         }
                     });
 
-                    const dialog = this._root.querySelector("dialog");
+                    const dialog = this._root.querySelector("#dialog");
                     dialog.showModal();
 
                     const ip = dialog.querySelector('input');

@@ -1,25 +1,28 @@
 {
-  "name": "hexagonal-layout-manager",
-  "version": "1.0.0",
-  "description": "Use it to define a playground with hexagonal items",
-  "main": "draw.js",
-  "scripts": {
-    "serve": "npx http-server -c-1 -o ."
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tteichner/hexagonal-layout-manager.git"
-  },
-  "keywords": [
-    "js"
-  ],
-  "author": "Tobias Teichner",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/tteichner/hexagonal-layout-manager/issues"
-  },
-  "homepage": "https://github.com/tteichner/hexagonal-layout-manager#readme",
-  "dependencies": {
-    "http-server": "^14.1.1"
-  }
+    "name": "hexagonal-layout-manager",
+    "version": "1.0.0",
+    "description": "Use it to define a playground with hexagonal items",
+    "main": "draw.js",
+    "scripts": {
+        "serve": "npx http-server -c-1 -o .",
+        "release": "npm version minor -m \"Minor release %s\"",
+        "prerelease": "chmod a+x cicd/pre-release.sh && bash cicd/pre-release.sh",
+        "postrelease": "chmod a+x cicd/post-release.sh && bash cicd/post-release.sh"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tteichner/hexagonal-layout-manager.git"
+    },
+    "keywords": [
+        "js"
+    ],
+    "author": "Tobias Teichner",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/tteichner/hexagonal-layout-manager/issues"
+    },
+    "homepage": "https://github.com/tteichner/hexagonal-layout-manager#readme",
+    "dependencies": {
+        "http-server": "^14.1.1"
+    }
 }
